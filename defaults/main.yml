@@ -1,0 +1,4 @@
+# roles/mesos-master/defaults/main.yml
+---
+mesos_master_config_ip: "0.0.0.0"
+mesos_master_config_port: "{{ mesos_master_port | default(5050) }}"

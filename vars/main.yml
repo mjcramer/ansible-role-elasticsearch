@@ -1,0 +1,5 @@
+# roles/mesos-master/vars/main.yml
+---
+mesos_master:
+  conf_dir: /etc/mesos-master
+  env_file: /etc/default/mesos-master

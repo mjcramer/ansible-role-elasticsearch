@@ -1,0 +1,5 @@
+# roles/mesos-master/tasks/check.yml
+---
+- name: check | mesos master port
+  wait_for:
+    port: "{{ mesos_master_config_port }}"

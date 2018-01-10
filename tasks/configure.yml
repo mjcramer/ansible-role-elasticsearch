@@ -1,0 +1,67 @@
+# roles/mesos-master/tasks/configure.yml
+---
+- name: configure | zookeeper quorum
+  copy:
+    content: "{{ zookeeper_quorum_threshold | default(1) }}"
+    dest: "{{ mesos_master.conf_dir }}/quorum"
+  notify:
+    - restart mesos master
+
+- block:
+  - name: configure | remove port
+    lineinfile:
+      dest: "{{ mesos_master.env_file }}"
+      regexp: '^PORT='
+      state: absent
+
+  - name: configure | port
+    copy:
+      content: "{{ mesos_master_config_port }}"
+      dest: "{{ mesos_master.conf_dir }}/port"
+    notify:
+      - restart mesos master
+  when: mesos_master_config_port is defined
+
+- name: configure | ip
+  copy:
+    content: "{{ mesos_master_config_ip }}"
+    dest: "{{ mesos_master.conf_dir }}/ip"
+  notify:
+    - restart mesos master
+
+- name: configure | hostname
+  template:
+    src: hostname.j2
+    dest: "{{ mesos_master.conf_dir }}/hostname"
+  notify:
+    - restart mesos master
+
+- name: configure | cluster
+  copy:
+    content: "{{ cluster_name }}"
+    dest: "{{ mesos_master.conf_dir }}/cluster"
+  notify:
+    - restart mesos master
+  when: cluster_name is defined
+
+- name: configure | work dir
+  copy:
+    content: "{{ mesos.lib_dir }}"
+    dest: "{{ mesos_master.conf_dir }}/work_dir"
+  notify:
+    - restart mesos master
+
+- name: configure | rsyslog
+  template:
+    src: rsyslog.conf.j2
+    dest: /etc/rsyslog.d/80-mesos-master.conf
+  notify:
+    - restart rsyslog
+
+#- name: configure | systemd
+#  template:
+#    src: systemd.conf.j2
+#    dest: "{{ systemd_service_dir }}/mesos-master.service"
+#    mode: 0644
+#  notify:
+#    - reload systemd
